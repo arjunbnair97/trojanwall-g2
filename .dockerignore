@@ -1,0 +1,34 @@
+# Use an official Python runtime as a parent image
+FROM python:3
+
+# To the terminal without buffering it first
+ENV PYTHONUNBUFFER 1
+ENV PYTHONDONTWRITEBYTECODE 1
+
+#To create working directory
+WORKDIR /TestProject 
+ADD . /TestProject
+
+# Installation of dependency packages
+COPY ./requirements.txt/ TestProject/requirements.txt
+RUN apt-get update 
+RUN pip install -r requirements.txt \
+&& pip install twilio
+
+# Copy the contents
+COPY . /TestProject
+
+#RUN python manage.py run server
+CMD ["python","manage.py","runserver"]
+
+# Maintainer Name
+MAINTAINER arbnair97@gmail.com
+
+# Expose the container port at port 8000
+EXPOSE 8000
+
+
+
+
+
+

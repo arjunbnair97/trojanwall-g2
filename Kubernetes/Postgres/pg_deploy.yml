@@ -1,0 +1,80 @@
+---
+# Deployment for the PostgreSQL container
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+  namespace: trojanwall  
+  labels:
+    app: postgres-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: postgres-db
+        tier: postgreSQL
+    spec:
+      containers:
+        - name: postgresql
+          image: postgres:10.3
+          ports:
+          - containerPort: 5432
+          env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-db-credentials
+                key: user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-db-credentials
+                key: password
+          - name: POSTGRES_NAME
+            value: 'postgres'
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresql-volume-mount
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+      volumes:
+      - name: postgresql-volume-mount
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
+      tolerations:
+      - key: "blue"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+---
+# Service for the PostgreSQL container
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql
+  namespace: trojanwall  
+  labels:
+    app: postgres-db
+spec:
+  clusterIP: 10.107.194.222
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+  selector:
+    app: postgres-db
+    tier: postgreSQL

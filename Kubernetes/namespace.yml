@@ -1,0 +1,7 @@
+---
+# Name Space Creation of the Django-PostgreSQLapplication
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trojanwall

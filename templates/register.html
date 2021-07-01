@@ -1,0 +1,86 @@
+{% load static %} 
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Registration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+<!-- Custom Theme files -->
+
+<link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+<link href="{% static 'vendor/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/landing-page.min.css' %}" type="text/css" media="all" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/RegisterStyle.css' %}" />
+<link rel="stylesheet" href="{% static 'css/LoginStyle.css' %}" type="text/css" media="all" />
+<!-- //Custom Theme files -->
+
+<!-- //web font -->
+</head>
+<body>
+
+   <div class="container-fluid trojanwall-navbar">
+        <div class="row">
+            <div class="col-md-6">
+			    <center>
+			    <a class="trojantitle-2" href="/">Trojan Wall</a>
+				</center>
+            </div>
+			
+        </div>
+   </div>
+
+{% for message in messages %} 
+    <script>
+        alert('{{ message }}');
+    </script> 
+{% endfor %}
+    
+
+
+
+	<!-- main -->
+	<div class="main-w3layouts wrapper">
+	<form action="register" method="post">
+		<h1 class="title-head">Registration</h1>
+		<div class="main-agileinfo">
+			<div class="agileits-top">
+			{% csrf_token %} 	
+          <input class="text" type="text" name="first_name" placeholder="First Name" required=""><br>
+          <input class="text" type="text" name="last_name" placeholder="Last Name" required=""><br>
+          <input class="text" type="text" name="username" placeholder="Username" required="">
+					<input class="text email" type="email" name="email" placeholder="Email" required="">
+					<input class="text" type="password" name="password1" placeholder="Password" required="">
+					<input class="text w3lpass" type="password" name="password2" placeholder="Confirm Password" required="">
+					<div class="wthree-text">
+						<label class="anim">
+							<input type="checkbox" class="checkbox" required="">
+							<span>I Agree To The Terms & Conditions</span>
+						</label>
+						<div class="clear"> </div>
+					</div>
+					<center>
+					<input type="submit" value="Create">
+					</center>
+				</form>
+
+		
+				<p>Don't have an Account? <a href="login"> Login Now!</a></p>
+				
+			</div>
+		</div>
+		<!-- copyright -->
+		<div class="colorlibcopy-agile">
+			<p>&copy; 2020-2025 Trojan Wall v3.0.2 . All Rights Reserved</p>
+		</div>
+		<!-- //copyright -->
+		
+	</div>
+	<!-- //main -->
+
+	
+</body>
+
+
+</html>

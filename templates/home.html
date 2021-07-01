@@ -1,0 +1,233 @@
+{% load static %} 
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Trojan Wall</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+	<link href="{% static 'vendor/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+
+  <!-- Custom fonts for this template -->
+  <link href="{% static 'vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet">
+  <link href="{% static 'vendor/simple-line-icons/css/simple-line-icons.css' %}" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+  <!-- Custom styles for this template -->
+  <link href="{% static 'css/landing-page.min.css' %}" rel="stylesheet">
+
+  <style>
+    #bodyDiv
+    {
+      opacity:1;
+    }
+  </style>
+
+  <script>
+
+    $(window).scroll( function()
+    {
+      $('#bodyDiv').each( function(i)
+      {
+        let bottomElement = $(this).offset().top + $(this).outerHeight();
+        let bottomWindow = $(window).scrollTop() + $(window).height();
+          
+        if( bottomWindow > bottomElement )
+        {
+          $(this).animate({'opacity':'1'},1200);
+        }
+      }); 
+    });  
+
+  </script> 
+
+</head>
+
+<body id="bodyDiv">
+
+  <!-- Navigation -->
+
+  <nav class="navbar navbar-light bg-light static-top">
+    <div class="container">
+  
+        <a class="logo-title" href="#">Trojan Wall</a>
+      </form>
+      
+  
+        <a class="btn btn-primary trojan-button" href="accounts/register">Sign In</a>
+
+     
+    </div>
+  </nav>
+
+  <!-- Masthead -->
+  <header class="masthead text-white text-center"  style="background-image: url({% static '/img/bg-masthead.jpg' %})">
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-xl-9 mx-auto">
+          <h1 class="mb-5">Trojan Wall</h1><br>
+          <h5>Improved since the BCs! No disguised intruder can infilterate you're systems when you store you're credentials in safe vaults and by using strong passwords!</h5><br><br>
+        </div>
+        <div class="col-md-10 col-lg-8 col-xl-7 mx-auto">
+          <form>
+            <div class="form-row">
+              <div class="col-12 col-md-9 mb-2 mb-md-0">
+                <h4>Already have an account? Then Log in!</h4>
+              </div>
+
+              <div class="col-12 col-md-3">
+                <a class="btn btn-primary trojan-button" href="accounts/login">Login</a>
+              </div>
+          
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Icons Grid -->
+  <section class="features-icons bg-light text-center">
+    <div class="container">
+    <div class="row">
+    <div class="col-lg-12">
+        <h3>We offer the following services.</h3>  
+    </div>
+    </div>
+      <div class="row">
+        <div class="col-lg-4">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+            <div class="features-icons-icon d-flex">
+              <i class="icon-screen-desktop m-auto text-primary"></i>
+            </div>
+            <h3>Random Strong Password Generation</h3>
+            <p class="lead mb-0">Having trouble figuring out strong passwords? Using Trojanwall, you can generate custom strong passwords and store them instantly in you're key vault.</p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="features-icons-item mx-auto mb-5 mb-lg-0 mb-lg-3">
+            <div class="features-icons-icon d-flex">
+              <i class="icon-layers m-auto text-primary"></i>
+            </div>
+            <h3>Custom Key Vault</h3>
+            <p class="lead mb-0">Safeguard and store all you're credentials so that no one have the means to break into you're firewall and other systems.</p>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <div class="features-icons-item mx-auto mb-0 mb-lg-3">
+            <div class="features-icons-icon d-flex">
+              <i class="icon-check m-auto text-primary"></i>
+            </div>
+            <h3>Easy to Use and Free</h3>
+            <p class="lead mb-0">You get to store you're credentials that you need not write them in books or store in insecure notepads. We offer free service for all you're credentials</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Image Showcases -->
+  <section class="showcase">
+    <div class="container-fluid p-0">
+      <div class="row no-gutters">
+
+        <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url({% static '/img/bg-showcase-1.jpg' %})" ></div>
+        <div class="col-lg-6 order-lg-1 my-auto showcase-text">
+          <h2>Secure Key Vault</h2>
+          <p class="lead mb-0">When it comes to credential managing, we store credentials in notebooks, notepads and physical item. Doing so, it's easy for someone from the 
+          outside to access them and to get inside you're systems and the applications that you use. Here, we provide a single solution for this problem! You can store all 
+          you're credentials in a centralized secure storage location  </p>
+        </div>
+      </div>
+      <div class="row no-gutters">
+        <div class="col-lg-6 text-white showcase-img" style="background-image: url({% static '/img/bg-showcase-2.jpg' %})"></div>
+        <div class="col-lg-6 my-auto showcase-text">
+          <h2>Random Strong Password Generation</h2>
+          <p class="lead mb-0">It's insecure to use common and easily predictable passwords when security is one of you're concerns. Here you can custom generate you're random strong password and have no worries in storing them. <b>WE GOT OUR VAULT FOR THAT!<b></p>
+        </div>
+      </div>
+
+  </section>
+
+  <!-- Contact us -->
+  <section class="testimonials text-center bg-light">
+
+  <form action="twilioapp/twilio" method="post">
+     {% csrf_token %}
+
+    <div class="container twilio-main">
+      <div class="row" style="padding: 1%">
+        <div class="col-lg-12">
+          <h6 class="twilio-text2">We would to love hear from you. Please send us you're feedback.</h6>
+        </div>
+      </div>
+      <div class="row" style="padding: 1%">
+        <div class="col-lg-12">
+          <textarea class="twilio-text"name="twilio-text" placeholders="Enter you're feedback along with you're Mail ID"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-12">
+        
+        <input type="submit" class="btn trojan-button twilio-send" value="Submit" style="width:15%;"/> 
+        
+        </div>
+      </div>
+      
+    </div>
+
+  </form>  
+  </section>
+
+
+  <!-- Footer -->
+  <footer class="footer bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 h-100 text-center text-lg-left my-auto">
+          <ul class="list-inline mb-2">
+            <li class="list-inline-item">
+              <a href="#">About</a>
+            </li>
+            <li class="list-inline-item">&sdot;</li>
+            <li class="list-inline-item">
+              <a href="#">Contact</a>
+            </li>
+            <li class="list-inline-item">&sdot;</li>
+            <li class="list-inline-item">
+              <a href="#">Terms of Use</a>
+            </li>
+            <li class="list-inline-item">&sdot;</li>
+            <li class="list-inline-item">
+              <a href="#">Privacy Policy</a>
+            </li>
+          </ul>
+      
+          <p class="text-muted small mb-4 mb-lg-0">&copy; 2020-2025 Trojan Wall v3.0.2 . All Rights Reserved</p>
+       
+        </div>
+        
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  
+
+
+</body>
+
+</html>

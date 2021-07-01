@@ -1,0 +1,66 @@
+---
+# Job to migrate Trojanwall Database container
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: trojanwall-db-migrate-job
+  namespace: trojanwall  
+  labels:
+    app: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+      - name: trojanwall-django
+        image: arbabu/trojan-wall:v3.0.2
+        imagePullPolicy: Always
+        command: ["python", "manage.py", "migrate"]
+        ports:
+        - containerPort: 8000
+        env:
+          - name: POSTGRES_SERVICE_HOST
+            value: "10.107.194.222" # update this to reflect your IP 
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-db-credentials
+                key: user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-db-credentials
+                key: password
+          - name: POSTGRES_NAME
+            value: 'postgres'
+          - name: DATABASE_URL
+            value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgresql:5432/$(POSTGRES_NAME)
+          - name: DJANGO_SETTINGS_MODULE
+            value: 'TestProject.settings'
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: django-secret-key
+                key: secret_key
+        volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresql-volume-mount
+      volumes:
+      - name: postgresql-volume-mount
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
+
+      restartPolicy: OnFailure
+  backoffLimit: 4
+  ttlSecondsAfterFinished: 120
+
+        
+        
+ 

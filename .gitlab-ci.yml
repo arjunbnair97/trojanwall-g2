@@ -1,0 +1,235 @@
+#Test Pipeline 56
+
+stages:
+  - sonarqube:scan
+  - build and test
+  - trigger
+  - infra build
+  - s3 upload
+  - deploy production
+  - test and cleanup
+
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - node_modules/  
+
+
+
+sonar-scanner-trojanwall:
+  stage: sonarqube:scan
+  image:
+    name: sonarsource/sonar-scanner-cli:4.5
+    entrypoint: [""]
+  variables:
+    # Defines the location of the analysis task cache
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+    # Shallow cloning needs to be disabled.
+    # See https://docs.sonarqube.org/latest/analysis/gitlab-cicd/.
+    GIT_DEPTH: 0
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+      - .sonar/cache
+  script:
+    - echo $CI_PROJECT_DIR
+    - sonar-scanner
+  allow_failure: true
+  only:
+    - /^[\d]+\.[\d]+\.[\d]+\.1$/  
+  when: on_success    
+
+
+sonar-scanner-test-repo:
+  stage: sonarqube:scan
+  trigger:
+    include:
+    - project: 'rmesi/test-repo'
+      ref: master
+      file: 'sonarscanner.gitlab-ci.yml'
+  only:
+    - /^[\d]+\.[\d]+\.[\d]+\.1$/ 
+  when: on_success
+
+
+sonar-scanner-trojanwall-terraform:
+  stage: sonarqube:scan
+  trigger:
+    include:
+    - project: 'rmesi/trojanwall-terraform-Testing'
+      ref: master
+      file: 'sonarscanner.gitlab-ci.yml'
+  only:
+    - /^[\d]+\.[\d]+\.[\d]+\.1$/  
+  when: on_success
+
+
+
+build website:
+  image: node
+  stage: build and test 
+  script:
+    - npm install
+    - npm i python3
+
+    - mkdir .public
+    - cp -R .dockerignore .public
+    - cp -rPp * .public
+    - mv .public public
+  allow_failure: false
+  only:
+    - tags
+
+  artifacts:
+    paths:
+      - public
+    expire_in: 3 weeks
+    when: on_success
+      
+test artifact:
+  stage: build and test
+  extends: build website
+  script:
+    - mkdir .public
+    - cp -R .dockerignore .public
+    - cp -rPp * .public
+    - mv .public public
+    - grep -q "$APP_YEAR_VERSION Trojan Wall v$DOCKER_IMAGE_VERSION . All Rights Reserved" ./public/templates/home.html
+  when: delayed
+  start_in: 1 minutes
+  allow_failure: true
+  only:
+    - tags
+
+
+.deploy trigger:
+  stage: trigger
+  script:
+    - echo "Deployment Triggered"
+  except:
+    - master 
+    - TestCase
+    - Backup
+  when: manual
+  only:
+    - tags
+  allow_failure: false
+
+
+.terraform build:
+  stage: infra build
+  trigger:
+    include:
+    - project: 'arbnair97/trojanwall-terraform'
+      ref: master
+      file: '.gitlab-ci.yml'   
+  except:
+    - master 
+    - TestCase
+    - Backup
+  when: on_success
+  only:
+    - tags
+
+
+.docker image build:
+  image: docker:19.03.6
+  variables: 
+    DOCKER_TLS_CERTDIR: "/certs"
+  stage: infra build
+  only:
+    - tags
+  except:
+    - master 
+    - TestCase
+    - Backup
+  services:
+  - docker:19.03.6-dind
+  before_script:
+    - chmod 777 -R ./public
+    - docker info
+    - docker --version
+  script:
+    - sleep 120
+    - cd ./public
+    - docker build -f .dockerignore -t $DOCKER_REPO:v$DOCKER_IMAGE_VERSION .
+    - docker images
+    - docker login -u $DOCKER_USER -p $DOCKER_USER_PASSWORD
+    - docker push $DOCKER_REPO:v$DOCKER_IMAGE_VERSION 
+  environment:
+    name: production
+  when: on_success
+
+
+.s3 upload:
+  image: node
+  stage: s3 upload
+  extends: build website
+  script:
+    - ls
+
+
+
+.deploy production:
+  image: node
+  stage: deploy production
+  except:
+    - master 
+    - TestCase
+    - Backup
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo -e "$ANSIBLE_ENGINE_KEY" > ~/.ssh/id_rsa
+    - chmod 600  ~/.ssh/id_rsa
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+  script:
+     - bash GitLab/ansible-engine-K8s-deploy.sh # To deploy to Kubernetes Cluster in server using Ansible Engine
+     - echo "Deployment to Kubernetes Cluster Completed"
+  allow_failure: false
+  environment:
+     name: production
+  retry: 2
+  only:
+    - tags
+ 
+
+.production test:
+  image: node
+  stage: test and cleanup
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo -e "$ANSIBLE_ENGINE_KEY" > ~/.ssh/id_rsa
+    - chmod 600  ~/.ssh/id_rsa
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+  script:
+    - bash GitLab/k8s-ansible-test.sh
+#    - bash GitLab/k8s-test.sh # Used when deploying directly to server
+    - echo "Testing in Production Kubernetes cluster in production environment successfull"
+    - echo "Deployment process complete"
+  retry: 2
+  except:
+    - master 
+    - TestCase
+    - Backup
+  when: on_success
+  allow_failure: true
+  only:
+    - tags
+
+
+.terraform destroy:
+  stage: test and cleanup
+  trigger:
+    include:
+    - project: 'arbnair97/trojanwall-terraform'
+      ref: master
+      file: 'destroy.gitlab-ci.yml'   
+  except:
+    - master 
+    - TestCase
+    - Backup    
+  only:
+    - tags  

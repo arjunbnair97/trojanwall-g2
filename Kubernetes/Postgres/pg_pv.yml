@@ -1,0 +1,35 @@
+---
+# Persistent Volume for the PostgresSQL Database storage purpose
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgres-pv
+  namespace: trojanwall  
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 200M
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/data"
+---
+#Persistent Volume Claim for the PostgresSQL Database Persistent Volume
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata: 
+  labels: 
+    app: postgres-db
+  name: postgres-pv-claim
+  namespace: trojanwall
+spec: 
+  accessModes: 
+    - ReadWriteOnce
+  resources: 
+    requests: 
+      storage: 100M
+  storageClassName: manual

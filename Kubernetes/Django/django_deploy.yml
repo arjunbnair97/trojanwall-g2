@@ -1,0 +1,102 @@
+---
+# Deployment for the Django-Python application container
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trojanwall-django
+  namespace: trojanwall  
+  labels:
+    app: django
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django
+  template:
+    metadata:
+      labels:
+        app: django
+    spec:
+      containers:
+      - name: trojanwall-django
+        image: arbabu/trojan-wall:v3.0.2
+        imagePullPolicy: Always
+        command: ["python", "manage.py", "migrate"]
+        command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+        #livenessProbe:
+        #  httpGet:
+        #    path: /healthz
+        #    port: 8000
+        #readinessProbe:
+        #  # an http probe
+        #  httpGet:
+        #    path: /readiness
+        #    port: 8000
+        #  initialDelaySeconds: 0
+        #  timeoutSeconds: 20
+        ports:
+        - containerPort: 8000
+        env:
+          - name: POSTGRES_SERVICE_HOST
+            value: "10.107.194.222" # update this to reflect your IP 
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: postgres-db-credentials
+                key: user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres-db-credentials
+                key: password
+          - name: POSTGRES_NAME
+            value: 'postgres'
+          - name: DATABASE_URL
+            value: postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgresql:5432/$(POSTGRES_NAME)
+          - name: DJANGO_SETTINGS_MODULE
+            value: 'TestProject.settings'
+          - name: SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                name: django-secret-key
+                key: secret_key
+        resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+        volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgresql-volume-mount
+      volumes:
+      - name: postgresql-volume-mount
+        persistentVolumeClaim:
+          claimName: postgres-pv-claim
+      tolerations:
+      - key: "blue"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+
+---
+# Service for the Django-Python application container
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: trojanwall-django
+  namespace: trojanwall  
+  labels:
+    app: django
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    nodePort: 31000
+  type: NodePort
+  selector:
+    app: django
